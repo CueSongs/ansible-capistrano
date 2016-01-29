@@ -1,0 +1,21 @@
+---
+
+- name: Create the /var/www directory
+  shell: "mkdir -p /var/www && chown {{ ansible_ssh_user }}:{{ ansible_ssh_user }} /var/www"
+  sudo: yes
+
+- name: Stat the /current directory
+  stat: path=/var/www/current
+  register: current
+
+- name: Ensure we have a shared path
+  file: path=/var/www/shared state=directory owner={{ ansible_ssh_user }} mode=0700
+
+- name: Create shared path structure
+  file: path=/var/www/shared/{{ item }} state=directory owner={{ ansible_ssh_user }} mode=0700
+  with_items: capistrano.shared_paths
+
+- name: Spoof the current directory
+  file: src=/var/www/shared dest=/var/www/current state=link owner={{ ansible_ssh_user }} mode=0700
+  sudo: yes
+  when: current.stat.islnk is not defined or current.stat.islnk == false

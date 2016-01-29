@@ -1,0 +1,7 @@
+---
+capistrano: {
+    shared_paths: [
+      "config",
+      "storage",
+    ]
+}
